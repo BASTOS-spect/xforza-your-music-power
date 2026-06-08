@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout.index'
 import { Route as LayoutPlanosRouteImport } from './routes/_layout.planos'
+import { Route as LayoutBuscarRouteImport } from './routes/_layout.buscar'
+import { Route as LayoutBibliotecaRouteImport } from './routes/_layout.biblioteca'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -27,27 +29,49 @@ const LayoutPlanosRoute = LayoutPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutBuscarRoute = LayoutBuscarRouteImport.update({
+  id: '/buscar',
+  path: '/buscar',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutBibliotecaRoute = LayoutBibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
+  '/biblioteca': typeof LayoutBibliotecaRoute
+  '/buscar': typeof LayoutBuscarRoute
   '/planos': typeof LayoutPlanosRoute
 }
 export interface FileRoutesByTo {
+  '/biblioteca': typeof LayoutBibliotecaRoute
+  '/buscar': typeof LayoutBuscarRoute
   '/planos': typeof LayoutPlanosRoute
   '/': typeof LayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
+  '/_layout/biblioteca': typeof LayoutBibliotecaRoute
+  '/_layout/buscar': typeof LayoutBuscarRoute
   '/_layout/planos': typeof LayoutPlanosRoute
   '/_layout/': typeof LayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/planos'
+  fullPaths: '/' | '/biblioteca' | '/buscar' | '/planos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/planos' | '/'
-  id: '__root__' | '/_layout' | '/_layout/planos' | '/_layout/'
+  to: '/biblioteca' | '/buscar' | '/planos' | '/'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/_layout/biblioteca'
+    | '/_layout/buscar'
+    | '/_layout/planos'
+    | '/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,15 +101,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutPlanosRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/buscar': {
+      id: '/_layout/buscar'
+      path: '/buscar'
+      fullPath: '/buscar'
+      preLoaderRoute: typeof LayoutBuscarRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/biblioteca': {
+      id: '/_layout/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof LayoutBibliotecaRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
 interface LayoutRouteChildren {
+  LayoutBibliotecaRoute: typeof LayoutBibliotecaRoute
+  LayoutBuscarRoute: typeof LayoutBuscarRoute
   LayoutPlanosRoute: typeof LayoutPlanosRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutBibliotecaRoute: LayoutBibliotecaRoute,
+  LayoutBuscarRoute: LayoutBuscarRoute,
   LayoutPlanosRoute: LayoutPlanosRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
@@ -99,13 +141,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
