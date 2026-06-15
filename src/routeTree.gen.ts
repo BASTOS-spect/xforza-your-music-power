@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout.index'
 import { Route as LayoutPlanosRouteImport } from './routes/_layout.planos'
+import { Route as LayoutPerfilRouteImport } from './routes/_layout.perfil'
 import { Route as LayoutBuscarRouteImport } from './routes/_layout.buscar'
 import { Route as LayoutBibliotecaRouteImport } from './routes/_layout.biblioteca'
 
@@ -35,6 +36,11 @@ const LayoutPlanosRoute = LayoutPlanosRouteImport.update({
   path: '/planos',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutPerfilRoute = LayoutPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutBuscarRoute = LayoutBuscarRouteImport.update({
   id: '/buscar',
   path: '/buscar',
@@ -51,12 +57,14 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/biblioteca': typeof LayoutBibliotecaRoute
   '/buscar': typeof LayoutBuscarRoute
+  '/perfil': typeof LayoutPerfilRoute
   '/planos': typeof LayoutPlanosRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/biblioteca': typeof LayoutBibliotecaRoute
   '/buscar': typeof LayoutBuscarRoute
+  '/perfil': typeof LayoutPerfilRoute
   '/planos': typeof LayoutPlanosRoute
   '/': typeof LayoutIndexRoute
 }
@@ -66,20 +74,22 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_layout/biblioteca': typeof LayoutBibliotecaRoute
   '/_layout/buscar': typeof LayoutBuscarRoute
+  '/_layout/perfil': typeof LayoutPerfilRoute
   '/_layout/planos': typeof LayoutPlanosRoute
   '/_layout/': typeof LayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/biblioteca' | '/buscar' | '/planos'
+  fullPaths: '/' | '/auth' | '/biblioteca' | '/buscar' | '/perfil' | '/planos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/biblioteca' | '/buscar' | '/planos' | '/'
+  to: '/auth' | '/biblioteca' | '/buscar' | '/perfil' | '/planos' | '/'
   id:
     | '__root__'
     | '/_layout'
     | '/auth'
     | '/_layout/biblioteca'
     | '/_layout/buscar'
+    | '/_layout/perfil'
     | '/_layout/planos'
     | '/_layout/'
   fileRoutesById: FileRoutesById
@@ -119,6 +129,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutPlanosRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/perfil': {
+      id: '/_layout/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof LayoutPerfilRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/buscar': {
       id: '/_layout/buscar'
       path: '/buscar'
@@ -139,6 +156,7 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutBibliotecaRoute: typeof LayoutBibliotecaRoute
   LayoutBuscarRoute: typeof LayoutBuscarRoute
+  LayoutPerfilRoute: typeof LayoutPerfilRoute
   LayoutPlanosRoute: typeof LayoutPlanosRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
 }
@@ -146,6 +164,7 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutBibliotecaRoute: LayoutBibliotecaRoute,
   LayoutBuscarRoute: LayoutBuscarRoute,
+  LayoutPerfilRoute: LayoutPerfilRoute,
   LayoutPlanosRoute: LayoutPlanosRoute,
   LayoutIndexRoute: LayoutIndexRoute,
 }
