@@ -260,6 +260,36 @@ function MobileNav() {
 }
 
 function AppLayout() {
+  const navigate = useNavigate();
+  const [checked, setChecked] = useState(false);
+  const [authed, setAuthed] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const ok = !!data.session;
+      setAuthed(ok);
+      setChecked(true);
+      if (!ok) navigate({ to: "/auth" });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      const ok = !!session;
+      setAuthed(ok);
+      if (!ok) navigate({ to: "/auth" });
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [navigate]);
+
+  if (!checked || !authed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex items-baseline gap-0.5 opacity-50">
+          <span className="font-display text-4xl font-black text-primary animate-pulse">X</span>
+          <span className="font-display text-3xl font-black tracking-tight text-foreground">FORZA</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <PlayerProvider>
       <div className="min-h-screen bg-background pb-32">
@@ -283,3 +313,4 @@ function AppLayout() {
     </PlayerProvider>
   );
 }
+
