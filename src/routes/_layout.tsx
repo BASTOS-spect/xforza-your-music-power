@@ -1,11 +1,63 @@
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
-import { Home, Search, Library, Crown, Play, Pause, SkipBack, SkipForward, Heart, Volume2 } from "lucide-react";
+import { Home, Search, Library, Crown, Play, Pause, SkipBack, SkipForward, Heart, Volume2, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
 import { PlayerProvider, usePlayer, formatTime } from "@/contexts/player-context";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_layout")({
   component: AppLayout,
 });
+
+function useAuthUser() {
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+  return user;
+}
+
+function AuthBlock() {
+  const user = useAuthUser();
+  const navigate = useNavigate();
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background/60 px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary"
+      >
+        <LogIn className="h-4 w-4" /> Entrar
+      </Link>
+    );
+  }
+  const initial = (user.user_metadata?.display_name || user.email || "U").charAt(0).toUpperCase();
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-border bg-background/60 p-2">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">
+        {initial}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-xs font-semibold text-foreground">{user.user_metadata?.display_name || "Usuário"}</p>
+        <p className="truncate text-[10px] text-muted-foreground">{user.email}</p>
+      </div>
+      <button
+        onClick={async () => {
+          await supabase.auth.signOut();
+          toast.success("Você saiu da sua conta");
+          navigate({ to: "/" });
+        }}
+        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-surface hover:text-primary"
+        aria-label="Sair"
+      >
+        <LogOut className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
 
 function NavItem({ to, icon: Icon, label }: { to: string; icon: any; label: string }) {
   return (
@@ -151,7 +203,7 @@ function Sidebar() {
         <NavItem to="/buscar" icon={Search} label="Buscar" />
         <NavItem to="/biblioteca" icon={Library} label="Biblioteca" />
       </nav>
-      <div className="mt-auto p-4">
+      <div className="mt-auto space-y-3 p-4">
         <Link
           to="/planos"
           className="group flex items-center gap-2 rounded-xl bg-gradient-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]"
@@ -159,6 +211,7 @@ function Sidebar() {
           <Crown className="h-4 w-4" />
           Ver planos
         </Link>
+        <AuthBlock />
       </div>
     </aside>
   );
@@ -193,17 +246,12 @@ function AppLayout() {
       <div className="min-h-screen bg-background pb-32">
         <Sidebar />
 
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-surface/80 px-4 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-2 border-b border-border bg-surface/80 px-4 backdrop-blur-xl lg:hidden">
           <Link to="/" className="flex items-baseline gap-0.5">
             <span className="font-display text-2xl font-black text-primary">X</span>
             <span className="font-display text-xl font-black tracking-tight text-foreground">FORZA</span>
           </Link>
-          <Link
-            to="/planos"
-            className="rounded-full bg-gradient-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-glow"
-          >
-            Planos
-          </Link>
+          <MobileAuth />
         </header>
 
         <main className="lg:ml-60">
