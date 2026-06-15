@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout.index'
 import { Route as LayoutPlanosRouteImport } from './routes/_layout.planos'
 import { Route as LayoutBuscarRouteImport } from './routes/_layout.buscar'
 import { Route as LayoutBibliotecaRouteImport } from './routes/_layout.biblioteca'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
   getParentRoute: () => rootRouteImport,
@@ -42,11 +48,13 @@ const LayoutBibliotecaRoute = LayoutBibliotecaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof LayoutIndexRoute
+  '/auth': typeof AuthRoute
   '/biblioteca': typeof LayoutBibliotecaRoute
   '/buscar': typeof LayoutBuscarRoute
   '/planos': typeof LayoutPlanosRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/biblioteca': typeof LayoutBibliotecaRoute
   '/buscar': typeof LayoutBuscarRoute
   '/planos': typeof LayoutPlanosRoute
@@ -55,6 +63,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
+  '/auth': typeof AuthRoute
   '/_layout/biblioteca': typeof LayoutBibliotecaRoute
   '/_layout/buscar': typeof LayoutBuscarRoute
   '/_layout/planos': typeof LayoutPlanosRoute
@@ -62,12 +71,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/biblioteca' | '/buscar' | '/planos'
+  fullPaths: '/' | '/auth' | '/biblioteca' | '/buscar' | '/planos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/biblioteca' | '/buscar' | '/planos' | '/'
+  to: '/auth' | '/biblioteca' | '/buscar' | '/planos' | '/'
   id:
     | '__root__'
     | '/_layout'
+    | '/auth'
     | '/_layout/biblioteca'
     | '/_layout/buscar'
     | '/_layout/planos'
@@ -76,10 +86,18 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   LayoutRoute: typeof LayoutRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_layout': {
       id: '/_layout'
       path: ''
@@ -137,17 +155,8 @@ const LayoutRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   LayoutRoute: LayoutRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
