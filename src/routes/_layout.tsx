@@ -59,6 +59,23 @@ function AuthBlock() {
   );
 }
 
+function MobileAuth() {
+  const user = useAuthUser();
+  if (user) {
+    const initial = (user.user_metadata?.display_name || user.email || "U").charAt(0).toUpperCase();
+    return (
+      <Link to="/planos" className="flex items-center gap-2">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-primary text-xs font-bold text-primary-foreground">{initial}</div>
+      </Link>
+    );
+  }
+  return (
+    <Link to="/auth" className="flex items-center gap-1.5 rounded-full bg-gradient-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-glow">
+      <LogIn className="h-3.5 w-3.5" /> Entrar
+    </Link>
+  );
+}
+
 function NavItem({ to, icon: Icon, label }: { to: string; icon: any; label: string }) {
   return (
     <Link
