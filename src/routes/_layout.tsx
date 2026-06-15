@@ -219,6 +219,7 @@ function Sidebar() {
         <NavItem to="/" icon={Home} label="Início" />
         <NavItem to="/buscar" icon={Search} label="Buscar" />
         <NavItem to="/biblioteca" icon={Library} label="Biblioteca" />
+        <NavItem to="/perfil" icon={UserIcon} label="Perfil" />
       </nav>
       <div className="mt-auto space-y-3 p-4">
         <Link
@@ -241,6 +242,7 @@ function MobileNav() {
         { to: "/", icon: Home, label: "Início" },
         { to: "/buscar", icon: Search, label: "Buscar" },
         { to: "/biblioteca", icon: Library, label: "Biblioteca" },
+        { to: "/perfil", icon: UserIcon, label: "Perfil" },
         { to: "/planos", icon: Crown, label: "Planos" },
       ].map((it) => (
         <Link
